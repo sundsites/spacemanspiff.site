@@ -1,11 +1,9 @@
 #!/bin/bash
 
-rm -f /var/www/html/index.html
-
 mysql < /root/candh.sql
 mysql < /root/createuser.sql
 
-cp /root/template-docker.dbconfig /var/www/html/config/dbconfig.cfg
+mkdir /nonexistent
 
 a2enmod rewrite
 a2enmod php8.3

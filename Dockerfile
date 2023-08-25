@@ -36,17 +36,16 @@ COPY candh.sql /root
 # copy the createuser.sql file to the container
 COPY createuser.sql /root
 
-# copy the dbconfig file to the container
-COPY template-docker.dbconfig /root
-
 # Copy and run install script
 COPY install.sh /root
 RUN chmod +x /root/install.sh
 RUN /root/install.sh
 
-RUN mkdir /nonexistent
+# Copy run script
+COPY run.sh /root
+RUN chmod +x /root/run.sh
 
 # Start Apache and MySQL services
-CMD service mysql start && \
-    service apache2 start && \
-    /bin/bash
+# CMD /root/run.sh && tail -f /dev/null
+
+ENTRYPOINT ["/bin/bash", "/root/run.sh"]

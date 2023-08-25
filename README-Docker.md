@@ -6,6 +6,10 @@ docker-compose up -d
 docker build -t candh-web .
 docker run -d --name spaceman candh-web -p 8484:80
 
+# Running a docker
+docker system prune 
+docker buildx build -t hobbes .
+docker run --rm --name hobbes -ditp 8484:80 --mount type=bind,source=/Users/shaunsund/Local/Repos/sundsites/spacemanspiff.site/htdocs,target=/var/www/html/ hobbes
 
 # build with no cache
 sudo docker build --no-cache -t candh-web . 2>&1 | tee build.log

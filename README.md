@@ -35,13 +35,4 @@ You'll have to adjust the database connection info within the databaseOpen() fun
 
 ## Dockerized for development
 
-### Create an image
-
-docker buildx build -t endlessh .
-
-### Run an image in a container
-
-docker run --rm --name hobbes -dp 8484:80 hobbes /bin/bash
-
- docker stop hobbes && docker rm hobbes
-docker image prune
+See README-Docker.md
