@@ -36,10 +36,8 @@ Calvin &amp; Hobbes
 databaseOpen();
 $mysqli = new mysqli($GLOBALS['DBCONFIG']["dbhost"], $GLOBALS['DBCONFIG']["dbuser"], $GLOBALS['DBCONFIG']["dbpassword"], $GLOBALS['DBCONFIG']["dbname"]);
 
-
-$slide = (!empty(trim($_REQUEST['slide']) ? $_REQUEST['slide'] : null));
-
-if ($slide)     // if slideshow mode
+if (isset($my_array['slide'])) {
+    if ($slide)     // if slideshow mode
     {
         $sql = "SELECT * FROM ch WHERE ch_date>='".strSQL($slide)."' ORDER BY ch_date LIMIT 2;";    // get this date, plus next one
         // echo htmlentities($sql).'<BR>'; // exit;
@@ -49,6 +47,10 @@ if ($slide)     // if slideshow mode
         echo "Calvin & Hobbes slide read Query Error = ".mysqli_error()."<BR>";
         exit;
     }
+} else {
+    // Handle the case where the "slide" key doesn't exist
+    $slide_value = null;
+}
 
 if (($row = mysqli_fetch_object($res)))     // if record read okay
     {
@@ -82,7 +84,8 @@ if (($row = mysqli_fetch_object($res)))     // if record read okay
     exit;
 }
 
-$book = (!empty(trim($_REQUEST['book']) ? $_REQUEST['book'] : null));
+if (isset($my_array['book'])) {
+    $book = (!empty(trim($_REQUEST['book']) ? $_REQUEST['book'] : null));
 if ($book)
 {
     ?>
@@ -121,8 +124,16 @@ if ($book)
     <?php
     exit;
 }
+} else {
+    // Handle the case where the "book" key doesn't exist
+    $book_value = null;
+}
 
-$q = trim($_REQUEST['q']);      // get user query
+if (isset($_REQUEST['q'])) {
+    $q = trim($_REQUEST['q']);      // get user query
+} else {
+    $q = null;
+}
 
 ?>
 
@@ -138,6 +149,8 @@ $q = trim($_REQUEST['q']);      // get user query
 <a class="function" href="./?issubmit=1">Display text of all strips</a>
 </form>
 <?php
+
+
 if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
 {
     $sql = "SELECT * FROM ch ORDER BY RAND() LIMIT 1;";
