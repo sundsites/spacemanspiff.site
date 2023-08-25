@@ -32,3 +32,16 @@ Note that the above 105MB archive also contains artwork, but in very low-res GIF
 Two MySQL table dumps are included. The main table is in "ch.sql", and a related table of published collection books is in "chbooks.sql"
 
 You'll have to adjust the database connection info within the databaseOpen() function in the "misc.php" include file.
+
+## Dockerized for development
+
+### Create an image
+
+docker buildx build -t endlessh .
+
+### Run an image in a container
+
+docker run --rm --name hobbes -dp 8484:80 hobbes /bin/bash
+
+ docker stop hobbes && docker rm hobbes
+docker image prune

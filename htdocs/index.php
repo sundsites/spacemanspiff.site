@@ -1,4 +1,4 @@
-<?
+<?php
 require('misc.php');
 $thisScript = 'index.php';
 define('PAGE_SIZE',30);
@@ -6,7 +6,7 @@ define('PAGE_SIZE',30);
 <html><head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/candh.php">
+    <link rel="stylesheet" href="css/candh.css">
     <title>Calvin &amp; Hobbes</title>
 <!-- Matomo -->
 <script>
@@ -32,12 +32,13 @@ define('PAGE_SIZE',30);
 Calvin &amp; Hobbes
 </h1>
 
-<?
+<?php
 databaseOpen();
 $mysqli = new mysqli($GLOBALS['DBCONFIG']["dbhost"], $GLOBALS['DBCONFIG']["dbuser"], $GLOBALS['DBCONFIG']["dbpassword"], $GLOBALS['DBCONFIG']["dbname"]);
 
 
 $slide = (!empty(trim($_REQUEST['slide']) ? $_REQUEST['slide'] : null));
+
 if ($slide)     // if slideshow mode
     {
         $sql = "SELECT * FROM ch WHERE ch_date>='".strSQL($slide)."' ORDER BY ch_date LIMIT 2;";    // get this date, plus next one
@@ -60,14 +61,14 @@ if (($row = mysqli_fetch_object($res)))     // if record read okay
 ?>
 
 <div class="function">
-    <? echo date('l, F jS, Y',$date); ?></a>
+    <?php echo date('l, F jS, Y',$date); ?></a>
     &nbsp;&bull;&nbsp;
-    <a target="_blank" href="./?book=<? echo $row->ch_books; ?>"><I>book</I></a>
+    <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a>
 </div>
-<a href="<? echo $thisScript; ?>?slide=<? echo $nextDate; ?>">
-<img src="<? echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
+<a href="<?php echo $thisScript; ?>?slide=<?php echo $nextDate; ?>">
+<img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
 
-<?
+<?php
     }
     mysqli_free_result($res);
     ?>
@@ -77,7 +78,7 @@ if (($row = mysqli_fetch_object($res)))     // if record read okay
     <a href="./"><i>Home</i></a>
     </body>
     </html>
-<?
+<?php
     exit;
 }
 
@@ -88,7 +89,7 @@ if ($book)
     <h2>
     Available in the following books:
     </h2>
-    <?
+    <?php
     $sql = "SELECT * FROM chbooks WHERE INSTR('".strSQL($book)."', chb_id) ORDER BY chb_date";
 
     // echo htmlentities($sql).'<BR>'; exit;
@@ -106,10 +107,10 @@ if ($book)
         $date = sql2date($row->chb_date);       // get book publish date
         $link = $row->chb_link;             // get book title
         ?>
-        <a target="_blank" href="<? echo $link; ?>">
-        <? echo htmlentities($title); ?> (<? echo date('F Y',$date); ?>)</a>
+        <a target="_blank" href="<?php echo $link; ?>">
+        <?php echo htmlentities($title); ?> (<?php echo date('F Y',$date); ?>)</a>
         <br><br>
-        <?
+        <?php
         $cnt++;
     }
     mysqli_free_result($res);
@@ -117,7 +118,7 @@ if ($book)
     <br />
     <Xa href="./"><i>Close this window when done</i></Xa>
     </body></html>
-    <?
+    <?php
     exit;
 }
 
@@ -125,9 +126,9 @@ $q = trim($_REQUEST['q']);      // get user query
 
 ?>
 
-<form action="<? echo $thisScript; ?>" method=get>
+<form action="<?php echo $thisScript; ?>" method=get>
 <input type=hidden name="issubmit" value="1">
-<input type=text name="q" value="<? echo htmlentities($q); ?>">
+<input type=text name="q" value="<?php echo htmlentities($q); ?>">
 <input type=submit name="submit" value="Search">
 &nbsp;&nbsp;&nbsp;
 <a class="function" href="indexBrowse.html">Chronological Menu</a>
@@ -136,7 +137,7 @@ $q = trim($_REQUEST['q']);      // get user query
 &nbsp;&bull;&nbsp;
 <a class="function" href="./?issubmit=1">Display text of all strips</a>
 </form>
-<?
+<?php
 if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
 {
     $sql = "SELECT * FROM ch ORDER BY RAND() LIMIT 1;";
@@ -154,14 +155,14 @@ if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
         $imageFile = date('Y/m/Ymd',$date).'.jpg';      // get strip image file name and path
         ?>
         <br />
-        <div class="function">A random selection: <a target="_blank" href="<? echo $imageFile; ?>">
-        <? echo date('l, F jS, Y',$date); ?></a>
+        <div class="function">A random selection: <a target="_blank" href="<?php echo $imageFile; ?>">
+        <?php echo date('l, F jS, Y',$date); ?></a>
         &nbsp;&bull;&nbsp;
-        <a target="_blank" href="./?book=<? echo $row->ch_books; ?>"><I>book</I></a></div>
-        <a target="_blank" href="<? echo $imageFile; ?>">
-        <img src="<? echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
+        <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a></div>
+        <a target="_blank" href="<?php echo $imageFile; ?>">
+        <img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
         </a>
-        <?
+        <?php
     }
     mysqli_free_result($res);
 } else {
@@ -206,34 +207,34 @@ if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
     $pagemax = intval($rowmax/PAGE_SIZE);
     ?>
     <div style="padding: 2px; background-color: #CCF;">
-    <a href="<? echo $thisScript; ?>?q=<? echo htmlentities($q); ?>&issubmit=1&page=1">&lt;&lt;</a>&nbsp;<a href="<? echo $thisScript; ?>?q=<? echo htmlentities($q); ?>&issubmit=1&page=<? echo max(1, $page-1); ?>">&lt;</a>&nbsp;<?
-    ?>Page <? echo $page; ?><?
-    ?>&nbsp;<a href="<? echo $thisScript; ?>?q=<? echo htmlentities($q); ?>&issubmit=1&page=<? echo min(intval($rowmax/PAGE_SIZE), $page+1); ?>">&gt;</a>&nbsp;<a href="<? echo $thisScript; ?>?q=<? echo htmlentities($q); ?>&issubmit=1&page=<? echo intval($rowmax/PAGE_SIZE)+1; ?>">&gt;&gt;</a>
+    <a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=1">&lt;&lt;</a>&nbsp;<a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=<?php echo max(1, $page-1); ?>">&lt;</a>&nbsp;<?php
+    ?>Page <?php echo $page; ?><?php
+    ?>&nbsp;<a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=<?php echo min(intval($rowmax/PAGE_SIZE), $page+1); ?>">&gt;</a>&nbsp;<a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=<?php echo intval($rowmax/PAGE_SIZE)+1; ?>">&gt;&gt;</a>
 
-    &nbsp; Displaying <? echo ($page-1)*PAGE_SIZE+1; ?>-<? echo ($page-1)*PAGE_SIZE+min(PAGE_SIZE, mysqli_num_rows($res)); ?> of <? echo $rowmax; ?> records.
-    </div><br /><?
+    &nbsp; Displaying <?php echo ($page-1)*PAGE_SIZE+1; ?>-<?php echo ($page-1)*PAGE_SIZE+min(PAGE_SIZE, mysqli_num_rows($res)); ?> of <?php echo $rowmax; ?> records.
+    </div><br /><?php
     $cnt = 0;
     while (($row = mysqli_fetch_object($res)) && (!$isLimit || $cnt < PAGE_SIZE))       // for every record
     {
         $date = sql2date($row->ch_date);        // get strip date
         $imageFile = date('Y/m/Ymd',$date).'.jpg';      // get strip image file name and path
         ?>
-        <a target="_blank" href="<? echo $imageFile; ?>">
-        <? echo date('l, F jS, Y',$date); ?></a>
+        <a target="_blank" href="<?php echo $imageFile; ?>">
+        <?php echo date('l, F jS, Y',$date); ?></a>
         &nbsp;&bull;&nbsp;
-        <a target="_blank" href="./?book=<? echo $row->ch_books; ?>"><I>book</I></a>
-        <div class="quote"><? echo htmlentities($row->ch_text); ?></div>
-        <?
+        <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a>
+        <div class="quote"><?php echo htmlentities($row->ch_text); ?></div>
+        <?php
         $cnt++;
     }
     if (!$cnt)
     {
         ?>
         <b style="color: #900;">No records found</b>
-        <?
+        <?php
     }
     mysqli_free_result($res);
 }
 ?>
 </body></html>
-<?
+<?php

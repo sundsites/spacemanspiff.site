@@ -17,9 +17,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `emberne_main`
+-- Database: `ch`
 --
-
+CREATE DATABASE IF NOT EXISTS `candh` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `candh`;
 -- --------------------------------------------------------
 
 --

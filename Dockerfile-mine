@@ -1,0 +1,22 @@
+FROM ubuntu
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt update
+RUN apt install vim php8.1-mysql php apache2 apache2-utils php8.1-fpm libapache2-mod-php -y
+RUN apt clean
+
+#change working directory to root of apache webhost
+WORKDIR var/www/html
+
+RUN rm index.html
+
+COPY htdocs/ .
+
+COPY install.sh /root/
+
+RUN chmod +x /root/install.sh && /root/install.sh
+
+EXPOSE 80
+
+ENTRYPOINT apachectl -D FOREGROUND
