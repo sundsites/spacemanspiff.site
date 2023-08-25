@@ -3,26 +3,25 @@
 $dockerconfig = dirname(__FILE__)."/config/docker.dbconfig.cfg";
 $defaultconfig = dirname(__FILE__)."/config/dbconfig.cfg";
 
-if (file_exists($dockerconfig)) {
-  if (is_readable($dockerconfig)) {
+if (file_exists($defaultconfig)) {
+  if (is_readable($defaultconfig)) {
     if ($debug) {
-        var_dump($dockerconfig);
+        var_dump($defaultconfig);
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
-    echo 'The '.$dockerconfig.' is present and readable';
+    echo 'The '.$defaultconfig.' is present and readable';
     }
-        include $dockerconfig;
+        include $defaultconfig;
 }
-} elseif (file_exists($defaultconfig)) {
-    // Do something with the second file if the first one doesn't exist
-    if (is_readable($defaultconfig)) {
+} elseif (file_exists($dockerconfig)) {
+    if (is_readable($dockerconfig)) {
         if ($debug) {
-            var_dump($defaultconfig);
+            var_dump($dockerconfig);
             error_reporting(E_ALL);
             ini_set('display_errors', '1');
-        echo 'The '.$defaultconfig.' is present and readable';
+        echo 'The '.$dockerconfig.' is present and readable';
         }
-            include $defaultconfig;
+            include $dockerconfig;
     }
 } else {
     // Neither file exists
