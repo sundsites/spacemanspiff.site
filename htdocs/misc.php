@@ -1,20 +1,32 @@
 <?php
-$configpath = dirname(__FILE__)."/config/docker.dbconfig.cfg";
 
-$debug = TRUE;
+$dockerconfig = dirname(__FILE__)."/config/docker.dbconfig.cfg";
+$defaultconfig = dirname(__FILE__)."/config/dbconfig.cfg";
 
-if (is_readable($configpath)) {
+if (file_exists($dockerconfig)) {
+  if (is_readable($dockerconfig)) {
     if ($debug) {
-        var_dump($configpath);
+        var_dump($dockerconfig);
         error_reporting(E_ALL);
         ini_set('display_errors', '1');
-    echo 'The '.$configpath.' is readable';
+    echo 'The '.$dockerconfig.' is present and readable';
     }
-        include $configpath;
+        include $dockerconfig;
+}
+} elseif (file_exists($defaultconfig)) {
+    // Do something with the second file if the first one doesn't exist
+    if (is_readable($defaultconfig)) {
+        if ($debug) {
+            var_dump($defaultconfig);
+            error_reporting(E_ALL);
+            ini_set('display_errors', '1');
+        echo 'The '.$defaultconfig.' is present and readable';
+        }
+            include $defaultconfig;
+    }
 } else {
-    echo 'The ' . $configpath . ' is not readable';
-        echo $configpath;
-        exit;
+    // Neither file exists
+    echo "Neither $dockerconfig nor $defaultconfig were found.";
 }
 
 global $mysqli;
