@@ -29,7 +29,7 @@ define('PAGE_SIZE',30);
 </script>
 <noscript>
     <p>
-        <img src="//stats.sund.org/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" />
+        <img src="//brickdata.xyz/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" />
     </p>
 </noscript>
 <!-- End Matomo Code -->
