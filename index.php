@@ -1,28 +1,37 @@
 <?php
-require('misc.php');
+
+require('database_functions.php');
+require('utility_functions.php');
+
 $thisScript = 'index.php';
 define('PAGE_SIZE',30);
+
 ?>
-<html><head>
+<html>
+    <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/candh.css">
     <title>Calvin &amp; Hobbes</title>
 <!-- Matomo -->
 <script>
-  var _paq = window._paq = window._paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
+    var _paq = window._paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
     var u="//stats.sund.org/";
     _paq.push(['setTrackerUrl', u+'matomo.php']);
     _paq.push(['setSiteId', '7']);
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-  })();
+    })();
 </script>
-<noscript><p><img src="//stats.sund.org/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+<noscript>
+    <p>
+        <img src="//stats.sund.org/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" />
+    </p>
+</noscript>
 <!-- End Matomo Code -->
 </head>
 
@@ -33,8 +42,21 @@ Calvin &amp; Hobbes
 </h1>
 
 <?php
-databaseOpen();
-$mysqli = new mysqli($GLOBALS['DBCONFIG']["dbhost"], $GLOBALS['DBCONFIG']["dbuser"], $GLOBALS['DBCONFIG']["dbpassword"], $GLOBALS['DBCONFIG']["dbname"]);
+
+$mysqli = databaseOpen();
+
+if ($slide) {
+    $sql = "SELECT * FROM ch WHERE ch_date>='".strSQL($mysqli, $slide)."' ORDER BY ch_date LIMIT 2;";
+    $res = mysqli_query($mysqli, $sql);
+    if (!$res) {
+        echo "Calvin & Hobbes slide read Query Error = ".mysqli_error($mysqli)."<BR>";
+        exit;
+    }
+}
+
+$book = isset($_REQUEST['book']) ? trim($_REQUEST['book']) : null;
+
+$slide = isset($_REQUEST['slide']) ? $_REQUEST['slide'] : null;
 
 if (isset($my_array['slide'])) {
     if ($slide)     // if slideshow mode
@@ -62,12 +84,6 @@ if (($row = mysqli_fetch_object($res)))     // if record read okay
             $nextDate = '1985-11-18';                   // wrap around if no more strips
 ?>
 
-<div class="function">
-    <?php echo date('l, F jS, Y',$date); ?></a>
-    &nbsp;&bull;&nbsp;
-    <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a>
-</div>
-<a href="<?php echo $thisScript; ?>?slide=<?php echo $nextDate; ?>">
 <img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
 
 <?php
@@ -85,7 +101,7 @@ if (($row = mysqli_fetch_object($res)))     // if record read okay
 }
 
 if (isset($my_array['book'])) {
-    $book = (!empty(trim($_REQUEST['book']) ? $_REQUEST['book'] : null));
+    // $book = (!empty(trim($_REQUEST['book']) ? $_REQUEST['book'] : null));
 if ($book)
 {
     ?>
@@ -119,7 +135,7 @@ if ($book)
     mysqli_free_result($res);
     ?>
     <br />
-    <Xa href="./"><i>Close this window when done</i></Xa>
+    <a href="./"><i>Close this window when done</i></a>
     </body></html>
     <?php
     exit;
@@ -162,21 +178,26 @@ if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
         exit;
     }
 
-    if (($row = mysqli_fetch_object($res)))     // if record read okay
-    {
-        $date = sql2date($row->ch_date);        // get strip date
-        $imageFile = date('Y/m/Ymd',$date).'.jpg';      // get strip image file name and path
+if (($row = mysqli_fetch_object($res)))     // if record read okay
+{
+    $date = sql2date($row->ch_date);        // get strip date
+    $imageFile = date('Y/m/Ymd',$date).'.jpg';     // get strip image file name and path
+
+    if (file_exists($imageFile)) {
         ?>
         <br />
         <div class="function">A random selection: <a target="_blank" href="<?php echo $imageFile; ?>">
         <?php echo date('l, F jS, Y',$date); ?></a>
         &nbsp;&bull;&nbsp;
-        <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a></div>
+        <a href="#" onclick="window.open('./book.php?book=<?php echo urlencode($row->ch_books); ?>', 'newwindow', 'width=600,height=600'); return false;"><I>book</I></a>
         <a target="_blank" href="<?php echo $imageFile; ?>">
         <img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
         </a>
         <?php
+    } else {
+        echo "Image not found: " . $imageFile;
     }
+}
     mysqli_free_result($res);
 } else {
     // echo 'about to open DB<BR>'; exit;

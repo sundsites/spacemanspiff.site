@@ -4,14 +4,14 @@ $dockerconfig = dirname(__FILE__)."/config/docker.dbconfig.cfg";
 $defaultconfig = dirname(__FILE__)."/config/dbconfig.cfg";
 
 if (file_exists($defaultconfig)) {
-  if (is_readable($defaultconfig)) {
-    if ($debug) {
-        var_dump($defaultconfig);
-        error_reporting(E_ALL);
-        ini_set('display_errors', '1');
-    echo 'The '.$defaultconfig.' is present and readable';
-    }
-        include $defaultconfig;
+    if (is_readable($defaultconfig)) {
+        if ($debug) {
+            var_dump($defaultconfig);
+            error_reporting(E_ALL);
+            ini_set('display_errors', '1');
+        echo 'The '.$defaultconfig.' is present and readable';
+        }
+            include $defaultconfig;
 }
 } elseif (file_exists($dockerconfig)) {
     if (is_readable($dockerconfig)) {
