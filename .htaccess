@@ -1,0 +1,11 @@
+# hide DB configs
+
+<FilesMatch "docker.dbconfig.cfg">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "dbconfig.cfg">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
