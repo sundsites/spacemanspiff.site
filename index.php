@@ -2,6 +2,9 @@
 require('database_functions.php');
 require('utility_functions.php');
 
+// Define version number
+$version = "1.2.1";
+
 $thisScript = 'index.php';
 define('PAGE_SIZE', 30);
 ?>
@@ -84,7 +87,7 @@ define('PAGE_SIZE', 30);
         ?>
         <br />
         <i title="Show next comic (you can also click the image for this)">Next</i></a>
-        &nbsp;&bull;&nbsp;
+        &nbsp;&bull;&nbsp; X
         <a href="./"><i>Home</i></a>
         </body>
         </html>
@@ -240,6 +243,7 @@ define('PAGE_SIZE', 30);
         &nbsp; Displaying <?php echo ($page-1)*PAGE_SIZE+1; ?>-<?php echo ($page-1)*PAGE_SIZE+min(PAGE_SIZE, mysqli_num_rows($res)); ?> of <?php echo $rowmax; ?> records.
         </div><br /><?php
         $cnt = 0;
+        // text display strips
         while (($row = mysqli_fetch_object($res)) && (!$isLimit || $cnt < PAGE_SIZE))       // for every record
         {
             $date = sql2date($row->ch_date);        // get strip date
@@ -248,7 +252,7 @@ define('PAGE_SIZE', 30);
             <a target="_blank" href="<?php echo $imageFile; ?>">
             <?php echo date('l, F jS, Y',$date); ?></a>
             &nbsp;&bull;&nbsp;
-            <a target="_blank" href="./?book=<?php echo $row->ch_books; ?>"><I>book</I></a>
+            <a href="#" onclick="window.open('./book.php?book=<?php echo urlencode($row->ch_books); ?>', 'newwindow', 'width=600,height=600'); return false;"><I>book</I></a>
             <div class="quote"><?php echo htmlentities($row->ch_text); ?></div>
             <?php
             $cnt++;
@@ -261,6 +265,10 @@ define('PAGE_SIZE', 30);
         }
         mysqli_free_result($res);
     }
+    // Add footer
+    echo "<footer>Web App Version: $version</footer>";
+
     ?>
   </body>
+
 </html>
