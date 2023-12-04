@@ -3,7 +3,7 @@ require('database_functions.php');
 require('utility_functions.php');
 
 // Define version number
-$version = "1.2.1";
+$version = "1.2.2";
 
 $thisScript = 'index.php';
 define('PAGE_SIZE', 30);
