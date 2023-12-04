@@ -2,8 +2,22 @@ version: '3'
 
 services:
   web:
-    image: php:7.4-apache
+    build: .
     volumes:
       - ./:/var/www/html
+      # - ./.apache2:/etc/apache2
     ports:
-      - 8080:8080
+      - 8080:80
+
+  db:
+    image: mysql:5.7
+    volumes:
+      # - ./db:/var/lib/mysql
+      - ./initdb.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: candh
+      MYSQL_DATABASE: candh
+      MYSQL_USER: candh
+      MYSQL_PASSWORD: candh
+    ports:
+      - 3306:3306
