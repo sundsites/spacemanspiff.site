@@ -4,7 +4,7 @@ body {
   border: none;
   font-size: 13px;
   font-family: arial, "lucida console", sans-serif;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 h1 {
@@ -41,4 +41,25 @@ div.quote {
   font-size: 12px;
   font-family: arial, "lucida console", sans-serif;
   margin: 2px 5px 20px 0px;
+}
+
+# smaller text for version in footer
+div.version {
+  font-size: 8px;
+  font-style: normal;
+  font-weight: normal;
+  font-family: 'Times New Roman', Times, serif
+  margin: 2px 5px 20px 0px;
+}
+
+.header, .footer {
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 20px;
+}
+.nav {
+  background-color: #e2e2e2;
+  color: #8d8d8d;
+  padding: 20px;
+  text-align: center;
 }
