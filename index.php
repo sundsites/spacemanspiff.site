@@ -1,11 +1,8 @@
 <?php
 require('database_functions.php');
 require('utility_functions.php');
-
 // Define version number
 $version = trim(file_get_contents('version.txt'));
-
-
 $thisScript = 'index.php';
 define('PAGE_SIZE', 30);
 ?>
@@ -266,9 +263,8 @@ define('PAGE_SIZE', 30);
         }
         mysqli_free_result($res);
     }
-    // Add footer
-    echo "<footer>Web App Version: $version</footer>";
-
+    // Add footer page
+    include 'footer.php';
     ?>
   </body>
 
