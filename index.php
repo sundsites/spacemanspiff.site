@@ -30,6 +30,7 @@ define('PAGE_SIZE', 30);
     <noscript>
         <p><img src="//brickdata.xyz/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" /></p>
     </noscript>
+    <script src="js/calendar.js"></script>
 </head>
 <body>
     <h1>Calvin &amp; Hobbes</h1>
@@ -179,13 +180,18 @@ define('PAGE_SIZE', 30);
         if (file_exists($imageFile)) {
             ?>
             <br />
-            <div class="function">A random selection: <a target="_blank" href="<?php echo $imageFile; ?>">
+            <div class="function"><span id="comic-date">A random selection: </span><a target="_blank" href="<?php echo $imageFile; ?>">
             <?php echo date('l, F jS, Y',$date); ?></a>
             &nbsp;&bull;&nbsp;
             <a href="#" onclick="window.open('./book.php?book=<?php echo urlencode($row->ch_books); ?>', 'newwindow', 'width=600,height=600'); return false;"><I>book</I></a>
-            <a target="_blank" href="<?php echo $imageFile; ?>">
-            <img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
+            </div>
+            <a id="comic-link" target="_blank" href="<?php echo $imageFile; ?>">
+            <img id="comic-image" src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
             </a>
+            
+            <!-- Calendar Component -->
+            <div id="calendar-container"></div>
+            
             <?php
         } else {
             echo "Image not found: " . $imageFile;

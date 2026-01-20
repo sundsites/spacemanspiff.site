@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/candh.css">
+    <title>Calvin &amp; Hobbes</title>
+    <!-- Matomo Tracking Code -->
+    <script>
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u = "//brickdata.xyz/";
+            _paq.push(['setTrackerUrl', u + 'matomo.php']);
+            _paq.push(['setSiteId', '7']);
+            var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+            g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s);
+        })();
+    </script>
+    <noscript>
+        <p><img src="//brickdata.xyz/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" /></p>
+    </noscript>
+    <script src="js/calendar.js"></script>
+</head>
+<body>
+    <div style="position: relative;">
+        <h1>Calvin &amp; Hobbes</h1>
+        <div id="size-toggle" style="position: absolute; top: 10px; right: 10px; font-size: 14px;">
+            <a href="#" onclick="toggleImageSize(); return false;" style="text-decoration: underline; color: #0066cc;">Full Size</a>
+        </div>
+    </div>
+
+    <form action="/" method="get" id="main-menu">
+        <input type="hidden" name="issubmit" value="1">
+        <input type="text" name="q" id="search-input" value="">
+        <input type="submit" name="submit" value="Search">
+        &nbsp;&nbsp;&nbsp;
+        <a class="function" href="indexBrowse.html">Chronological Menu</a>
+        &nbsp;&bull;&nbsp;
+        <a class="function" href="#" onclick="startSlideshow(); return false;">Chronological Slideshow</a>
+        &nbsp;&bull;&nbsp;
+        <a class="function" href="/?issubmit=1">Display text of all strips</a>
+    </form>
+
+    <div id="comic-container">
+        <br />
+        <div class="function">
+            <span id="comic-date">Loading...</span>
+        </div>
+        <a id="comic-link" target="_blank" href="">
+            <img id="comic-image" src="" />
+        </a>
+    </div>
+
+    <!-- Calendar Component -->
+    <div id="calendar-container"></div>
+
+    <div id="search-results" style="display: none;">
+        <!-- Search results will be inserted here -->
+    </div>
+
+    <script>
+        // Image size toggle
+        window.imageScale = 50; // 50% or 100%
+        
+        function toggleImageSize() {
+            const img = document.getElementById('comic-image');
+            const toggle = document.getElementById('size-toggle').querySelector('a');
+            
+            if (window.imageScale === 50) {
+                window.imageScale = 100;
+                img.style.width = '100%';
+                toggle.textContent = 'Half Size';
+            } else {
+                window.imageScale = 50;
+                img.style.width = '50%';
+                toggle.textContent = 'Full Size';
+            }
+        }
+
+        // Load random comic on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadRandomComic();
+        });
+
+        function loadRandomComic() {
+            fetch('/api/random-comic')
+                .then(response => {
+                    if (!response.ok) {
+                        // If API fails, generate a random date on client side
+                        return generateRandomComicClientSide();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateComicDisplay(data);
+                })
+                .catch(error => {
+                    console.error('Error loading comic:', error);
+                    // Fallback to client-side random comic
+                    const data = generateRandomComicClientSide();
+                    updateComicDisplay(data);
+                });
+        }
+
+        function generateRandomComicClientSide() {
+            // Generate a random date between Nov 18, 1985 and Dec 31, 1995
+            const startDate = new Date(1985, 10, 18); // Nov 18, 1985
+            const endDate = new Date(1995, 11, 31);   // Dec 31, 1995
+            const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+            const randomDate = new Date(randomTime);
+            
+            const year = randomDate.getFullYear();
+            const month = randomDate.getMonth() + 1;
+            const day = randomDate.getDate();
+            
+            return {
+                date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                image: `${year}/${String(month).padStart(2, '0')}/${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}.jpg`,
+                books: '',
+                text: ''
+            };
+        }
+
+        function updateComicDisplay(data) {
+            const comicImg = document.getElementById('comic-image');
+            const comicLink = document.getElementById('comic-link');
+            const comicDate = document.getElementById('comic-date');
+            
+            if (data.image) {
+                comicImg.src = data.image;
+                comicLink.href = data.image;
+                
+                // Store current comic date for arrow key navigation
+                window.currentComicDate = data.date;
+                
+                const [y, m, d] = data.date.split('-').map(Number);
+                const date = new Date(y, m - 1, d); // construct locally to avoid timezone shift
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                comicDate.innerHTML = `<a target="_blank" href="${data.image}">${date.toLocaleDateString('en-US', options)}</a>`;
+
+                // Sync calendar highlight to the loaded comic
+                if (typeof generateCalendar === 'function') {
+                    currentYear = y;
+                    currentMonth = m;
+                    generateCalendar(currentYear, currentMonth);
+                }
+                
+                if (data.books) {
+                    comicDate.innerHTML += ` &nbsp;&bull;&nbsp; <a href="#" onclick="window.open('./book.php?book=${encodeURIComponent(data.books)}', 'newwindow', 'width=600,height=600'); return false;"><i>book</i></a>`;
+                }
+            }
+        }
+
+        function startSlideshow() {
+            window.location.href = '/?slide=1985-11-18';
+        }
+
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const searchInput = document.getElementById('search-input').value;
+            if (searchInput) {
+                e.preventDefault();
+                performSearch(searchInput);
+            }
+        });
+
+        function performSearch(query) {
+            fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data);
+                })
+                .catch(error => {
+                    console.error('Error searching:', error);
+                });
+        }
+
+        function displaySearchResults(data) {
+            const comicContainer = document.getElementById('comic-container');
+            const searchResults = document.getElementById('search-results');
+            const calendarContainer = document.getElementById('calendar-container');
+            
+            comicContainer.style.display = 'none';
+            calendarContainer.style.display = 'none';
+            searchResults.style.display = 'block';
+            
+            let html = '<h2>Search Results</h2>';
+            
+            if (data.comics && data.comics.length > 0) {
+                data.comics.forEach(comic => {
+                    const date = new Date(comic.date);
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <a target="_blank" href="${comic.image}">${date.toLocaleDateString('en-US', options)}</a>
+                            <div class="quote">${comic.text}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<b style="color: #900;">No records found</b>';
+            }
+            
+            searchResults.innerHTML = html;
+        }
+    </script>
+
+    <div class="footer">
+        <p><a href="https://github.com/sundsites/spacemanspiff.site">GitHub</a></p>
+    </div>
+</body>
+</html>

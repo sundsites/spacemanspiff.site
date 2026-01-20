@@ -1,0 +1,224 @@
+// Calvin & Hobbes Calendar Component
+// Date range: November 1985 - December 1995
+
+const COMIC_START_YEAR = 1985;
+const COMIC_END_YEAR = 1995;
+const COMIC_START_MONTH = 11; // November (0-indexed would be 10, but we'll use 1-indexed)
+
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth() + 1; // 1-indexed
+let currentComicDate = null; // Track currently displayed comic date
+
+// Ensure we start within valid range
+if (currentYear < COMIC_START_YEAR || (currentYear === COMIC_START_YEAR && currentMonth < COMIC_START_MONTH)) {
+    currentYear = COMIC_START_YEAR;
+    currentMonth = COMIC_START_MONTH;
+} else if (currentYear > COMIC_END_YEAR) {
+    currentYear = COMIC_END_YEAR;
+    currentMonth = 12;
+}
+
+function generateCalendar(year, month) {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const firstDay = new Date(year, month - 1, 1).getDay(); // 0 = Sunday
+    
+    let html = `
+        <div class="calendar-header">
+            <button onclick="previousMonth()" id="prevBtn">&lt;</button>
+            <h3>${monthNames[month - 1]} ${year}</h3>
+            <button onclick="nextMonth()" id="nextBtn">&gt;</button>
+        </div>
+        <div class="calendar-grid">
+            <div class="calendar-day-header">Sun</div>
+            <div class="calendar-day-header">Mon</div>
+            <div class="calendar-day-header">Tue</div>
+            <div class="calendar-day-header">Wed</div>
+            <div class="calendar-day-header">Thu</div>
+            <div class="calendar-day-header">Fri</div>
+            <div class="calendar-day-header">Sat</div>
+    `;
+    
+    // Add empty cells for days before the first of the month
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day empty"></div>';
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const imageFile = `${year}/${String(month).padStart(2, '0')}/${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}.jpg`;
+        
+        // Check if this date is within the comic range
+        const isValidDate = isDateInRange(year, month, day);
+        
+        if (isValidDate) {
+            html += `<div class="calendar-day active" onclick="loadComic('${imageFile}', '${dateStr}')" title="View comic for ${dateStr}">${day}</div>`;
+        } else {
+            html += `<div class="calendar-day inactive">${day}</div>`;
+        }
+    }
+    
+    html += '</div>';
+    
+    document.getElementById('calendar-container').innerHTML = html;
+    updateNavigationButtons();
+}
+
+function isDateInRange(year, month, day) {
+    // Comics run from November 18, 1985 to December 31, 1995
+    if (year < COMIC_START_YEAR || year > COMIC_END_YEAR) {
+        return false;
+    }
+    
+    if (year === COMIC_START_YEAR && month === COMIC_START_MONTH) {
+        return day >= 18; // November 18, 1985 was the first strip
+    }
+    
+    return true;
+}
+
+function loadComic(imageFile, dateStr) {
+    // Check if the image exists before loading
+    const img = new Image();
+    img.onload = function() {
+        const comicImg = document.getElementById('comic-image');
+        const comicLink = document.getElementById('comic-link');
+        const comicDate = document.getElementById('comic-date');
+        
+        if (comicImg && comicLink) {
+            comicImg.src = imageFile;
+            comicLink.href = imageFile;
+            currentComicDate = dateStr; // Store current comic date
+            
+            if (comicDate) {
+                const date = new Date(dateStr);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                comicDate.textContent = date.toLocaleDateString('en-US', options);
+            }
+            
+            // Scroll to the comic
+            comicImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+    
+    img.onerror = function() {
+        alert('Comic not available for this date.');
+    };
+    
+    img.src = imageFile;
+}
+
+function previousMonth() {
+    currentMonth--;
+    if (currentMonth < 1) {
+        currentMonth = 12;
+        currentYear--;
+    }
+    
+    if (currentYear >= COMIC_START_YEAR) {
+        generateCalendar(currentYear, currentMonth);
+    } else {
+        currentYear = COMIC_START_YEAR;
+        currentMonth = COMIC_START_MONTH;
+    }
+}
+
+function nextMonth() {
+    currentMonth++;
+    if (currentMonth > 12) {
+        currentMonth = 1;
+        currentYear++;
+    }
+    
+    if (currentYear <= COMIC_END_YEAR) {
+        generateCalendar(currentYear, currentMonth);
+    } else {
+        currentYear = COMIC_END_YEAR;
+        currentMonth = 12;
+    }
+}
+
+function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // Disable prev button if at the start
+    if (currentYear === COMIC_START_YEAR && currentMonth === COMIC_START_MONTH) {
+        if (prevBtn) prevBtn.disabled = true;
+    } else {
+        if (prevBtn) prevBtn.disabled = false;
+    }
+    
+    // Disable next button if at the end
+    if (currentYear === COMIC_END_YEAR && currentMonth === 12) {
+        if (nextBtn) nextBtn.disabled = true;
+    } else {
+        if (nextBtn) nextBtn.disabled = false;
+    }
+}
+
+// Initialize calendar when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    generateCalendar(currentYear, currentMonth);
+    
+    // Add keyboard navigation for comic images
+    document.addEventListener('keydown', function(event) {
+        if (!currentComicDate) return; // No comic loaded yet
+        
+        // Left arrow key - previous day
+        if (event.key === 'ArrowLeft') {
+            loadPreviousComic();
+            event.preventDefault();
+        }
+        // Right arrow key - next day
+        else if (event.key === 'ArrowRight') {
+            loadNextComic();
+            event.preventDefault();
+        }
+    });
+});
+
+function loadPreviousComic() {
+    if (!currentComicDate) return;
+    
+    const date = new Date(currentComicDate);
+    date.setDate(date.getDate() - 1);
+    
+    // Check if we're going before the first comic
+    const firstComic = new Date(1985, 10, 18); // November 18, 1985
+    if (date < firstComic) {
+        return; // Don't go before first comic
+    }
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const imageFile = `${year}/${String(month).padStart(2, '0')}/${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}.jpg`;
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    loadComic(imageFile, dateStr);
+}
+
+function loadNextComic() {
+    if (!currentComicDate) return;
+    
+    const date = new Date(currentComicDate);
+    date.setDate(date.getDate() + 1);
+    
+    // Check if we're going past the last comic
+    const lastComic = new Date(1995, 11, 31); // December 31, 1995
+    if (date > lastComic) {
+        return; // Don't go past last comic
+    }
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const imageFile = `${year}/${String(month).padStart(2, '0')}/${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}.jpg`;
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    loadComic(imageFile, dateStr);
+}
