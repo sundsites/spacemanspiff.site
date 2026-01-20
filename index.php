@@ -5,6 +5,13 @@ require('utility_functions.php');
 $version = trim(file_get_contents('version.txt'));
 $thisScript = 'index.php';
 define('PAGE_SIZE', 30);
+
+// Initialize query variables early
+if (isset($_REQUEST['q'])) {
+    $q = trim($_REQUEST['q']);      // get user query
+} else {
+    $q = null;
+}
 ?>
 
 <!DOCTYPE html>
@@ -215,12 +222,6 @@ define('PAGE_SIZE', 30);
     <?php
 
     $mysqli = databaseOpen();
-
-    if (isset($_REQUEST['q'])) {
-        $q = trim($_REQUEST['q']);      // get user query
-    } else {
-        $q = null;
-    }
 
     if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic via PHP for backup
     {
