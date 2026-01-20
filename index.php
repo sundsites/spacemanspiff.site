@@ -33,124 +33,17 @@ define('PAGE_SIZE', 30);
     <script src="js/calendar.js"></script>
 </head>
 <body>
-    <h1>Calvin &amp; Hobbes</h1>
+    <div style="position: relative;">
+        <h1>Calvin &amp; Hobbes</h1>
+        <div id="size-toggle" style="position: absolute; top: 10px; right: 10px; font-size: 14px;">
+            <a href="#" onclick="toggleImageSize(); return false;" style="text-decoration: underline; color: #0066cc;">Full Size</a>
+        </div>
+    </div>
 
-    <?php
-
-    $mysqli = databaseOpen();
-
-    if ($slide) {
-        $sql = "SELECT * FROM ch WHERE ch_date>='".strSQL($mysqli, $slide)."' ORDER BY ch_date LIMIT 2;";
-        $res = mysqli_query($mysqli, $sql);
-        if (!$res) {
-            echo "Calvin & Hobbes slide read Query Error = ".mysqli_error($mysqli)."<BR>";
-            exit;
-        }
-    }
-
-    $book = isset($_REQUEST['book']) ? trim($_REQUEST['book']) : null;
-
-    $slide = isset($_REQUEST['slide']) ? $_REQUEST['slide'] : null;
-
-    if (isset($my_array['slide'])) {
-        if ($slide)     // if slideshow mode
-        {
-            $sql = "SELECT * FROM ch WHERE ch_date>='".strSQL($slide)."' ORDER BY ch_date LIMIT 2;";    // get this date, plus next one
-            // echo htmlentities($sql).'<BR>'; // exit;
-            $res = mysqli_query($mysqli, $sql);     // query table
-        if (!$res)
-        {
-            echo "Calvin & Hobbes slide read Query Error = ".mysqli_error()."<BR>";
-            exit;
-        }
-    } else {
-        // Handle the case where the "slide" key doesn't exist
-        $slide_value = null;
-    }
-
-    if (($row = mysqli_fetch_object($res)))     // if record read okay
-        {
-            $date = sql2date($row->ch_date);        // get strip date
-            $imageFile = date('Y/m/Ymd',$date).'.jpg';      // get strip image file name and path
-            if (($rowNext = mysqli_fetch_object($res)))     // if next record read okay
-                $nextDate = date('Y-m-d',sql2date($rowNext->ch_date));  // get date of next strip, in "slide=" format
-            else
-                $nextDate = '1985-11-18';                   // wrap around if no more strips
-    ?>
-
-    <img src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
-
-    <?php
-        }
-        mysqli_free_result($res);
-        ?>
-        <br />
-        <i title="Show next comic (you can also click the image for this)">Next</i></a>
-        &nbsp;&bull;&nbsp; X
-        <a href="./"><i>Home</i></a>
-        </body>
-        </html>
-    <?php
-        exit;
-    }
-
-    if (isset($my_array['book'])) {
-        // $book = (!empty(trim($_REQUEST['book']) ? $_REQUEST['book'] : null));
-    if ($book)
-    {
-        ?>
-        <h2>
-        Available in the following books:
-        </h2>
-        <?php
-        $sql = "SELECT * FROM chbooks WHERE INSTR('".strSQL($book)."', chb_id) ORDER BY chb_date";
-
-        // echo htmlentities($sql).'<BR>'; exit;
-        $res = mysqli_query($mysqli, $sql);     // query table
-        if (!$res)
-        {
-            echo "Calvin & Hobbes book read Query Error = ".mysqli_error()."<BR>";
-            exit;
-        }
-
-        $cnt = 0;
-        while ($row = mysqli_fetch_object($res))        // for every book record
-        {
-            $title = $row->chb_title;               // get book title
-            $date = sql2date($row->chb_date);       // get book publish date
-            $link = $row->chb_link;             // get book title
-            ?>
-            <a target="_blank" href="<?php echo $link; ?>">
-            <?php echo htmlentities($title); ?> (<?php echo date('F Y',$date); ?>)</a>
-            <br><br>
-            <?php
-            $cnt++;
-        }
-        mysqli_free_result($res);
-        ?>
-        <br />
-        <a href="./"><i>Close this window when done</i></a>
-        </body></html>
-        <?php
-        exit;
-    }
-    } else {
-        // Handle the case where the "book" key doesn't exist
-        $book_value = null;
-    }
-
-    if (isset($_REQUEST['q'])) {
-        $q = trim($_REQUEST['q']);      // get user query
-    } else {
-        $q = null;
-    }
-
-    ?>
-
-    <form action="<?php echo $thisScript; ?>" method=get>
-    <input type=hidden name="issubmit" value="1">
-    <input type=text name="q" value="<?php echo htmlentities($q); ?>">
-    <input type=submit name="submit" value="Search">
+    <form action="<?php echo $thisScript; ?>" method="get" id="main-menu">
+    <input type="hidden" name="issubmit" value="1">
+    <input type="text" name="q" value="<?php echo htmlentities($q ?? ''); ?>">
+    <input type="submit" name="submit" value="Search">
     &nbsp;&nbsp;&nbsp;
     <a class="function" href="indexBrowse.html">Chronological Menu</a>
     &nbsp;&bull;&nbsp;
@@ -158,10 +51,178 @@ define('PAGE_SIZE', 30);
     &nbsp;&bull;&nbsp;
     <a class="function" href="./?issubmit=1">Display text of all strips</a>
     </form>
+
+    <script>
+        // Image size toggle
+        window.imageScale = 50; // 50% or 100%
+        
+        function toggleImageSize() {
+            const img = document.getElementById('comic-image');
+            const toggle = document.getElementById('size-toggle').querySelector('a');
+            
+            if (window.imageScale === 50) {
+                window.imageScale = 100;
+                img.style.width = '100%';
+                toggle.textContent = 'Half Size';
+            } else {
+                window.imageScale = 50;
+                img.style.width = '50%';
+                toggle.textContent = 'Full Size';
+            }
+        }
+
+        // Load random comic on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadRandomComic();
+        });
+
+        function loadRandomComic() {
+            fetch('/api/random-comic')
+                .then(response => {
+                    if (!response.ok) {
+                        // If API fails, generate a random date on client side
+                        return generateRandomComicClientSide();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateComicDisplay(data);
+                })
+                .catch(error => {
+                    console.error('Error loading comic:', error);
+                    // Fallback to client-side random comic
+                    const data = generateRandomComicClientSide();
+                    updateComicDisplay(data);
+                });
+        }
+
+        function generateRandomComicClientSide() {
+            // Generate a random date between Nov 18, 1985 and Dec 31, 1995
+            const startDate = new Date(1985, 10, 18); // Nov 18, 1985
+            const endDate = new Date(1995, 11, 31);   // Dec 31, 1995
+            const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+            const randomDate = new Date(randomTime);
+            
+            const year = randomDate.getFullYear();
+            const month = randomDate.getMonth() + 1;
+            const day = randomDate.getDate();
+            
+            return {
+                date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                image: `${year}/${String(month).padStart(2, '0')}/${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}.jpg`,
+                books: '',
+                text: ''
+            };
+        }
+
+        function updateComicDisplay(data) {
+            const comicImg = document.getElementById('comic-image');
+            const comicLink = document.getElementById('comic-link');
+            const comicDate = document.getElementById('comic-date');
+            
+            if (data.image) {
+                comicImg.src = data.image;
+                comicLink.href = data.image;
+                
+                // Store current comic date for arrow key navigation
+                window.currentComicDate = data.date;
+                
+                const [y, m, d] = data.date.split('-').map(Number);
+                const date = new Date(y, m - 1, d); // construct locally to avoid timezone shift
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                comicDate.innerHTML = `<a target="_blank" href="${data.image}">${date.toLocaleDateString('en-US', options)}</a>`;
+
+                // Sync calendar highlight to the loaded comic
+                if (typeof generateCalendar === 'function') {
+                    currentYear = y;
+                    currentMonth = m;
+                    generateCalendar(currentYear, currentMonth);
+                }
+            }
+        }
+
+        function startSlideshow() {
+            window.location.href = '/?slide=1985-11-18';
+        }
+
+        // Handle form submission
+        document.querySelector('#main-menu').addEventListener('submit', function(e) {
+            const searchInput = document.getElementById('q');
+            if (searchInput.value) {
+                // PHP will handle the search
+                return true;
+            }
+        });
+
+        function performSearch(query) {
+            fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data);
+                })
+                .catch(error => {
+                    console.error('Error searching:', error);
+                });
+        }
+
+        function displaySearchResults(data) {
+            const comicContainer = document.getElementById('comic-container');
+            const searchResults = document.getElementById('search-results');
+            const calendarContainer = document.getElementById('calendar-container');
+            
+            comicContainer.style.display = 'none';
+            calendarContainer.style.display = 'none';
+            searchResults.style.display = 'block';
+            
+            let html = '<h2>Search Results</h2>';
+            
+            if (data.comics && data.comics.length > 0) {
+                data.comics.forEach(comic => {
+                    const date = new Date(comic.date);
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <a target="_blank" href="${comic.image}">${date.toLocaleDateString('en-US', options)}</a>
+                            <div class="quote">${comic.text}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<b style="color: #900;">No records found</b>';
+            }
+            
+            searchResults.innerHTML = html;
+        }
+    </script>
+
+    <div id="comic-container">
+        <br />
+        <div class="function">
+            <span id="comic-date">Loading...</span>
+        </div>
+        <a id="comic-link" target="_blank" href="">
+            <img id="comic-image" src="" />
+        </a>
+    </div>
+
+    <!-- Calendar Component -->
+    <div id="calendar-container"></div>
+
+    <div id="search-results" style="display: none;">
+        <!-- Search results will be inserted here -->
+    </div>
+
     <?php
 
+    $mysqli = databaseOpen();
 
-    if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic
+    if (isset($_REQUEST['q'])) {
+        $q = trim($_REQUEST['q']);      // get user query
+    } else {
+        $q = null;
+    }
+
+    if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic via PHP for backup
     {
         $sql = "SELECT * FROM ch ORDER BY RAND() LIMIT 1;";
         // echo htmlentities($sql).'<BR>'; // exit;
@@ -199,14 +260,22 @@ define('PAGE_SIZE', 30);
     }
         mysqli_free_result($res);
     } else {
-        // echo 'about to open DB<BR>'; exit;
+        // Display search results
+        ?>
+        <script>
+            // Hide comic container and calendar when showing search results
+            document.getElementById('comic-container').style.display = 'none';
+            document.getElementById('calendar-container').style.display = 'none';
+            document.getElementById('search-results').style.display = 'block';
+        </script>
+        <div id="search-results-content">
+        <?php
         if (!$q)        // if nothing entered for search, return all records
         {
             $isLimit = True;
             $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM ch ORDER BY ch_date";
         } else {            // otherwise create search string
             $sql = "SELECT SQL_CALC_FOUND_ROWS *, MATCH (ch_text) AGAINST ('".strSQL($q)."' IN NATURAL LANGUAGE MODE) AS score FROM ch WHERE MATCH (ch_text) AGAINST ('".strSQL($q)."' IN NATURAL LANGUAGE MODE)";
-            // $sql = "SELECT *, MATCH (ch_text) AGAINST ('".strSQL($q)."' IN BOOLEAN MODE) AS score FROM ch WHERE MATCH (ch_text) AGAINST ('".strSQL($q)."' IN BOOLEAN MODE);";
 
             $isLimit = True;
         }
@@ -239,6 +308,7 @@ define('PAGE_SIZE', 30);
         // echo '$rowmax = '.$rowmax.'<BR>'; exit;
         $pagemax = intval($rowmax/PAGE_SIZE);
         ?>
+        <h2>Search Results</h2>
         <div style="padding: 2px; background-color: #CCF;">
         <a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=1">&lt;&lt;</a>&nbsp;<a href="<?php echo $thisScript; ?>?q=<?php echo htmlentities($q); ?>&issubmit=1&page=<?php echo max(1, $page-1); ?>">&lt;</a>&nbsp;<?php
         ?>Page <?php echo $page; ?><?php
@@ -268,6 +338,9 @@ define('PAGE_SIZE', 30);
             <?php
         }
         mysqli_free_result($res);
+        ?>
+        </div>
+        <?php
     }
     // Add footer page
     include 'footer.php';
