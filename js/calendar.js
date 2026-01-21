@@ -182,33 +182,40 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Add touch swipe navigation for tablets/phones
-    const img = document.getElementById('comic-image');
-    if (img) {
-        let touchStartX = 0;
-        let touchStartY = 0;
-        const threshold = 40; // minimum px to count as swipe
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const threshold = 50; // minimum px to count as swipe
 
-        img.addEventListener('touchstart', function(e) {
+    document.addEventListener('touchstart', function(e) {
+        // Only handle touches on the comic container area
+        const target = e.target;
+        if (target.id === 'comic-image' || target.closest('#comic-container')) {
             const t = e.changedTouches[0];
             touchStartX = t.clientX;
             touchStartY = t.clientY;
-        }, { passive: true });
+        }
+    }, { passive: true });
 
-        img.addEventListener('touchend', function(e) {
-            if (!window.currentComicDate) return;
+    document.addEventListener('touchend', function(e) {
+        if (!window.currentComicDate) return;
+        
+        const target = e.target;
+        if (target.id === 'comic-image' || target.closest('#comic-container')) {
             const t = e.changedTouches[0];
             const dx = t.clientX - touchStartX;
             const dy = t.clientY - touchStartY;
 
+            // Swipe must be more horizontal than vertical and exceed threshold
             if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+                e.preventDefault(); // Prevent default behavior like scrolling
                 if (dx < 0) {
                     loadNextComic(); // swipe left -> next
                 } else {
                     loadPreviousComic(); // swipe right -> previous
                 }
             }
-        }, { passive: true });
-    }
+        }
+    }, { passive: false }); // Must be non-passive to preventDefault
 });
 
 function loadPreviousComic() {
