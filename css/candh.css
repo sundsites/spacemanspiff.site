@@ -48,6 +48,7 @@ img {
 
 #comic-container {
   text-align: center;
+  touch-action: pan-y pinch-zoom; /* Allow vertical scroll but enable horizontal swipe detection */
 }
 
 #comic-image {

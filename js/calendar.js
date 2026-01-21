@@ -181,41 +181,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add touch swipe navigation for tablets/phones
-    let touchStartX = 0;
-    let touchStartY = 0;
-    const threshold = 50; // minimum px to count as swipe
+    // Add touch swipe navigation for tablets/phones on comic container
+    const comicContainer = document.getElementById('comic-container');
+    if (comicContainer) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const threshold = 60; // minimum px to count as swipe
+        const maxTime = 500; // max ms for swipe
 
-    document.addEventListener('touchstart', function(e) {
-        // Only handle touches on the comic container area
-        const target = e.target;
-        if (target.id === 'comic-image' || target.closest('#comic-container')) {
-            const t = e.changedTouches[0];
+        comicContainer.addEventListener('touchstart', function(e) {
+            const t = e.touches[0];
             touchStartX = t.clientX;
             touchStartY = t.clientY;
-        }
-    }, { passive: true });
+            touchStartTime = Date.now();
+        }, { passive: true });
 
-    document.addEventListener('touchend', function(e) {
-        if (!window.currentComicDate) return;
-        
-        const target = e.target;
-        if (target.id === 'comic-image' || target.closest('#comic-container')) {
+        comicContainer.addEventListener('touchend', function(e) {
+            if (!window.currentComicDate) return;
+            
             const t = e.changedTouches[0];
             const dx = t.clientX - touchStartX;
             const dy = t.clientY - touchStartY;
+            const elapsed = Date.now() - touchStartTime;
 
-            // Swipe must be more horizontal than vertical and exceed threshold
-            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
-                e.preventDefault(); // Prevent default behavior like scrolling
+            // Must be quick, horizontal, and exceed threshold
+            if (elapsed < maxTime && Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy) * 1.5) {
                 if (dx < 0) {
                     loadNextComic(); // swipe left -> next
                 } else {
                     loadPreviousComic(); // swipe right -> previous
                 }
             }
-        }
-    }, { passive: false }); // Must be non-passive to preventDefault
+        }, { passive: true });
+    }
 });
 
 function loadPreviousComic() {
