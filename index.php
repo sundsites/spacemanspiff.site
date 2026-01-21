@@ -41,7 +41,7 @@ if (isset($_REQUEST['q'])) {
 </head>
 <body>
     <div style="position: relative;">
-        <h1>Calvin &amp; Hobbes</h1>
+        <h1 style="cursor: pointer;" onclick="goHome(); return false;">Calvin &amp; Hobbes</h1>
         <div id="size-toggle" style="position: absolute; top: 10px; right: 10px; font-size: 14px;">
             <a href="#" onclick="toggleImageSize(); return false;" style="text-decoration: underline; color: #0066cc;">Full Size</a>
         </div>
@@ -76,6 +76,15 @@ if (isset($_REQUEST['q'])) {
                 img.style.width = '50%';
                 toggle.textContent = 'Full Size';
             }
+        }
+
+        function goHome() {
+            // Clear search input and reset to home view
+            document.getElementById('q').value = '';
+            document.getElementById('comic-container').style.display = 'block';
+            document.getElementById('calendar-container').style.display = 'block';
+            document.getElementById('search-results').style.display = 'none';
+            loadRandomComic();
         }
 
         // Load random comic on page load
