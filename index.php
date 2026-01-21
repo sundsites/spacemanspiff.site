@@ -223,43 +223,10 @@ if (isset($_REQUEST['q'])) {
 
     $mysqli = databaseOpen();
 
-    if (!$_REQUEST['issubmit'])     // if nothing yet submitted, pick a random comic via PHP for backup
+    if (!$_REQUEST['issubmit'])     // if nothing yet submitted, let JavaScript load a random comic
     {
-        $sql = "SELECT * FROM ch ORDER BY RAND() LIMIT 1;";
-        // echo htmlentities($sql).'<BR>'; // exit;
-        $res = mysqli_query($mysqli, $sql);     // query table
-        if (!$res)
-        {
-            echo "Calvin & Hobbes random read Query Error = ".mysqli_error()."<BR>";
-            exit;
-        }
-
-    if (($row = mysqli_fetch_object($res)))     // if record read okay
-    {
-        $date = sql2date($row->ch_date);        // get strip date
-        $imageFile = date('Y/m/Ymd',$date).'.jpg';     // get strip image file name and path
-
-        if (file_exists($imageFile)) {
-            ?>
-            <br />
-            <div class="function"><span id="comic-date">A random selection: </span><a target="_blank" href="<?php echo $imageFile; ?>">
-            <?php echo date('l, F jS, Y',$date); ?></a>
-            &nbsp;&bull;&nbsp;
-            <a href="#" onclick="window.open('./book.php?book=<?php echo urlencode($row->ch_books); ?>', 'newwindow', 'width=600,height=600'); return false;"><I>book</I></a>
-            </div>
-            <a id="comic-link" target="_blank" href="<?php echo $imageFile; ?>">
-            <img id="comic-image" src="<?php echo $imageFile; ?>" width="100%" style="Xborder: 2px solid #666; Xpadding: 4px; padding-left: -10px; margin-top: 4px;" />
-            </a>
-            
-            <!-- Calendar Component -->
-            <div id="calendar-container"></div>
-            
-            <?php
-        } else {
-            echo "Image not found: " . $imageFile;
-        }
-    }
-        mysqli_free_result($res);
+        // JavaScript will handle loading a random comic
+        mysqli_close($mysqli);
     } else {
         // Display search results
         ?>
