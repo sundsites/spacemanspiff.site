@@ -5,26 +5,16 @@ $defaultconfig = __DIR__ . "/config/dbconfig.cfg";
 
 if (is_readable($defaultconfig)) {
     include $defaultconfig;
-    if (!empty($debug)) {
-        var_dump($defaultconfig);
-        error_reporting(E_ALL);
-        ini_set('display_errors', '1');
-        echo 'The ' . $defaultconfig . ' is present and readable';
-    }
 } elseif (is_readable($dockerconfig)) {
     include $dockerconfig;
-    if (!empty($debug)) {
-        var_dump($dockerconfig);
-        error_reporting(E_ALL);
-        ini_set('display_errors', '1');
-        echo 'The ' . $dockerconfig . ' is present and readable';
-    }
 } else {
-    if (!empty($debug)) {
-        error_reporting(E_ALL);
-        ini_set('display_errors', '1');
-        echo "Neither $dockerconfig nor $defaultconfig were found.";
-    }
+    // No config found; DB features will not work
+}
+
+// Enable debug mode only if explicitly set in config
+if (!empty($debug)) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
 }
 
 global $mysqli;
