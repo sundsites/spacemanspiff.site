@@ -19,7 +19,7 @@ if (isset($_REQUEST['q'])) {
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/candh.css">
+    <link rel="stylesheet" href="css/candh.css?v=<?php echo $version; ?>">
     <title>Calvin &amp; Hobbes</title>
     <!-- Matomo Tracking Code -->
     <script>
@@ -37,7 +37,7 @@ if (isset($_REQUEST['q'])) {
     <noscript>
         <p><img src="//brickdata.xyz/matomo.php?idsite=7&amp;rec=1" style="border:0;" alt="" /></p>
     </noscript>
-    <script src="js/calendar.js"></script>
+    <script src="js/calendar.js?v=<?php echo $version; ?>"></script>
 </head>
 <body>
     <div style="position: relative;">
