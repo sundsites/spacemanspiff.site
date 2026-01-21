@@ -29,6 +29,19 @@ h1 a {
   font-weight: inherit;
 }
 
+/* Ensure header link renders at header size */
+.site-title a {
+  font-size: 18pt !important;
+  font-weight: bold !important;
+}
+
+/* Tablet-friendly image width */
+@media (min-width: 768px) and (max-width: 1024px) {
+  #comic-image {
+    width: 70%;
+  }
+}
+
 img {
   border: none;
 }

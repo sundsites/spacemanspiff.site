@@ -180,6 +180,35 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
         }
     });
+
+    // Add touch swipe navigation for tablets/phones
+    const img = document.getElementById('comic-image');
+    if (img) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const threshold = 40; // minimum px to count as swipe
+
+        img.addEventListener('touchstart', function(e) {
+            const t = e.changedTouches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+        }, { passive: true });
+
+        img.addEventListener('touchend', function(e) {
+            if (!window.currentComicDate) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+                if (dx < 0) {
+                    loadNextComic(); // swipe left -> next
+                } else {
+                    loadPreviousComic(); // swipe right -> previous
+                }
+            }
+        }, { passive: true });
+    }
 });
 
 function loadPreviousComic() {
