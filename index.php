@@ -230,13 +230,11 @@ if (isset($_REQUEST['q'])) {
 
     <?php
 
-    $mysqli = databaseOpen();
-
-    if (!$_REQUEST['issubmit'])     // if nothing yet submitted, let JavaScript load a random comic
+    if (!isset($_REQUEST['issubmit']))     // if nothing yet submitted, let JavaScript load a random comic
     {
-        // JavaScript will handle loading a random comic
-        mysqli_close($mysqli);
+        // JavaScript will handle loading a random comic; no DB needed
     } else {
+        $mysqli = databaseOpen();
         // Display search results
         ?>
         <script>
@@ -318,6 +316,7 @@ if (isset($_REQUEST['q'])) {
         ?>
         </div>
         <?php
+        mysqli_close($mysqli);
     }
     // Add footer page
     include 'footer.php';
