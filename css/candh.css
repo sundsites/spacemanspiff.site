@@ -17,7 +17,14 @@ h1 {
 h2 {
   font-size: 16pt;
   font-family: arial, "lucida console", sans-serif;
+  text-align: center;
   /* margin: 50px 50px 30px 50px; */
+}
+
+h1 a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 img {

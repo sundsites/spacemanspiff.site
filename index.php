@@ -41,7 +41,7 @@ if (isset($_REQUEST['q'])) {
 </head>
 <body>
     <div style="position: relative;">
-        <h1 style="cursor: pointer;" onclick="goHome(); return false;">Calvin &amp; Hobbes</h1>
+        <h1 class="site-title"><a href="./" id="home-link">Calvin &amp; Hobbes</a></h1>
         <div id="size-toggle" style="position: absolute; top: 10px; right: 10px; font-size: 14px;">
             <a href="#" onclick="toggleImageSize(); return false;" style="text-decoration: underline; color: #0066cc;">Full Size</a>
         </div>
@@ -49,7 +49,7 @@ if (isset($_REQUEST['q'])) {
 
     <form action="<?php echo $thisScript; ?>" method="get" id="main-menu">
     <input type="hidden" name="issubmit" value="1">
-    <input type="text" name="q" value="<?php echo htmlentities($q ?? ''); ?>">
+    <input type="text" name="q" id="q" value="<?php echo htmlentities($q ?? ''); ?>">
     <input type="submit" name="submit" value="Search">
     &nbsp;&nbsp;&nbsp;
     <a class="function" href="indexBrowse.html">Chronological Menu</a>
