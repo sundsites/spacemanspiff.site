@@ -52,8 +52,6 @@ if (isset($_REQUEST['q'])) {
     <input type="text" name="q" id="q" value="<?php echo htmlentities($q ?? ''); ?>">
     <input type="submit" name="submit" value="Search">
     &nbsp;&nbsp;&nbsp;
-    <a class="function" href="indexBrowse.html">Chronological Menu</a>
-    &nbsp;&bull;&nbsp;
     <a class="function" href="./?slide=1985-11-18">Chronological Slideshow</a>
     &nbsp;&bull;&nbsp;
     <a class="function" href="./?issubmit=1">Display text of all strips</a>
