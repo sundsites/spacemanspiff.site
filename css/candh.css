@@ -18,16 +18,18 @@ h1 {
   font-size: 52pt;
   font-family: arial, "lucida console", sans-serif;
   text-align: center;
-  background-image: url('../HeaderMenu.jpg');
-  background-position: left center;
+  background-image: url('/HeaderMenu.jpg');
+  background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   padding: 10px 10px;
   margin: 0;
   min-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 h2 {
