@@ -181,40 +181,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add touch swipe navigation for tablets/phones on comic container
-    const comicContainer = document.getElementById('comic-container');
-    if (comicContainer) {
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        const threshold = 60; // minimum px to count as swipe
-        const maxTime = 500; // max ms for swipe
+    // Add touch swipe navigation for tablets/phones
+    let touchStartX = null;
+    let touchStartY = null;
 
-        comicContainer.addEventListener('touchstart', function(e) {
-            const t = e.touches[0];
-            touchStartX = t.clientX;
-            touchStartY = t.clientY;
-            touchStartTime = Date.now();
-        }, { passive: true });
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
 
-        comicContainer.addEventListener('touchend', function(e) {
-            if (!window.currentComicDate) return;
-            
-            const t = e.changedTouches[0];
-            const dx = t.clientX - touchStartX;
-            const dy = t.clientY - touchStartY;
-            const elapsed = Date.now() - touchStartTime;
-
-            // Must be quick, horizontal, and exceed threshold
-            if (elapsed < maxTime && Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                if (dx < 0) {
-                    loadNextComic(); // swipe left -> next
-                } else {
+    document.addEventListener('touchmove', function(e) {
+        if (!touchStartX || !touchStartY) return;
+        
+        const touchEndX = e.touches[0].clientX;
+        const touchEndY = e.touches[0].clientY;
+        
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        
+        // If it's a horizontal swipe (more horizontal than vertical)
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            if (window.currentComicDate) {
+                // Detected swipe, execute navigation
+                if (dx > 0) {
                     loadPreviousComic(); // swipe right -> previous
+                } else {
+                    loadNextComic(); // swipe left -> next
                 }
+                // Reset to prevent multiple triggers
+                touchStartX = null;
+                touchStartY = null;
             }
-        }, { passive: true });
-    }
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+        touchStartX = null;
+        touchStartY = null;
+    }, { passive: true });
 });
 
 function loadPreviousComic() {
