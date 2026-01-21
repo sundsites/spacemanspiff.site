@@ -3,97 +3,65 @@ Calvin and Hobbes Archive
 
 ## Features
 
-- Browse Calvin & Hobbes comics from 1985-1995
-- Interactive calendar to select comics by date
-- Search functionality for comic text
-- Chronological browsing and slideshow mode
-- Book information for each comic
+- Browse Calvin & Hobbes comics from 1985–1995
+- Interactive calendar (year/month dropdowns, clickable days)
+- Arrow keys and touch swipe navigation
+- Chronological menu and slideshow mode
+- Book info links
 
-## Development
+## Development (Virtual Environment)
 
-### Quick Start with Virtual Environment (Recommended)
+This project supports a Python-based dev workflow. PHP is used in production, but for local development we provide a Python fallback server. PHP cannot be installed inside a Python venv; install PHP system-wide if you want full parity.
 
-1. **Run the setup script:**
-   ```bash
-   ./setup.sh
-   ```
-
-2. **Activate the virtual environment:**
-   ```bash
-   source venv/bin/activate
-   ```
-
-3. **Start the server:**
-   ```bash
-   python app.py
-   ```
-
-4. **Visit:** `http://localhost:8000`
-
-5. **When done, deactivate:**
-   ```bash
-   deactivate
-   ```
-
-### Manual Setup
-
-If you prefer to set up manually:
+### Create and activate venv
 
 ```bash
-# Create virtual environment
 python3 -m venv venv
-
-# Activate it
 source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the server
-python app.py
-
-# Custom port
-python app.py 8080
 ```
 
-### Running the Development Server
+No Python dependencies are required for the fallback static server.
 
-This project includes a Python server script for local development:
+### Run the dev server
 
 ```bash
-# Start the server (requires PHP to be installed)
+# Default: tries PHP first; falls back to Python static server if PHP missing
 python3 server.py
 
-# Or make it executable and run directly
-./server.py
-
-# Specify a custom port (default is 8000)
+# Custom port
 python3 server.py 8080
 
-# Specify custom host and port
+# Custom host and port
 python3 server.py 8080 0.0.0.0
 ```
 
-The server will start at `http://localhost:8000`
+- When PHP is present: uses PHP’s built-in server to run `index.php`.
+- When PHP is absent: serves static files (calendar, random comic work; PHP-only features like search may be limited).
 
-### Prerequisites
+### Install PHP (system-wide, optional)
 
-- Python 3.7+ (for the Flask server)
-- MySQL/MariaDB database (optional - site works without it for basic functionality)
-- **No PHP required!**
+- Ubuntu/Debian: `sudo apt-get install php`
+- Fedora/RHEL: `sudo dnf install php`
+- macOS: Download installer from php.net (or use Homebrew if available)
+- Windows: Download from php.net
 
-### Calendar Feature
+### Docker (alternative, cross‑platform)
 
-The calendar component allows users to:
-- Navigate through months from November 1985 to December 1995
-- Click on any date to view the comic for that day
-- See visual feedback for available comics
-- The calendar starts from November 18, 1985 (the first Calvin & Hobbes strip)
+```bash
+docker compose up --build
+```
 
-### Project Structure
+## Notes
 
-- `index.php` - Main page
-- `js/calendar.js` - Calendar component JavaScript
-- `css/candh.css` - Styles including calendar styles
-- `server.py` - Development server script
-- `YYYY/MM/` - Comic images organized by year and month
+- Header title is a clickable link back to home.
+- Images are responsive; toggle between half/full size via the toolbar link.
+- Tablet swipe gestures: swipe left/right on the comic to navigate.
+
+## Project Structure
+
+- `index.php` — Main page (production)
+- `index.html` — Static page (dev fallback)
+- `js/calendar.js` — Calendar + navigation
+- `css/candh.css` — Styles
+- `server.py` — Dev server (PHP or Python fallback)
+- `YYYY/MM/` — Comic images

@@ -9,6 +9,8 @@ import sys
 import os
 import signal
 from pathlib import Path
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
 
 def check_php_installed():
     """Check if PHP is installed and available"""
@@ -23,8 +25,9 @@ def check_php_installed():
     except FileNotFoundError:
         print("✗ PHP not found. Please install PHP to run this server.")
         print("\nInstallation instructions:")
-        print("  macOS: brew install php")
+        print("  macOS: Download from https://www.php.net/downloads.php or use Homebrew if available")
         print("  Ubuntu/Debian: sudo apt-get install php")
+        print("  Fedora/RHEL: sudo dnf install php")
         print("  Windows: Download from https://www.php.net/downloads.php")
         return False
 
@@ -50,24 +53,14 @@ def start_server(host='localhost', port=8000):
             stdout=sys.stdout,
             stderr=sys.stderr
         )
-        
-        # Wait for the server to run
         process.wait()
-        
-    except KeyboardInterrupt:
-        print("\n\nShutting down server...")
-        process.terminate()
-        process.wait()
-        print("Server stopped.")
-    except Exception as e:
-        print(f"\nError starting server: {e}")
-        sys.exit(1)
+    except Exception:
+        raise
 
 def main():
     """Main entry point"""
     # Check if PHP is installed
-    if not check_php_installed():
-        sys.exit(1)
+    php_available = check_php_installed()
     
     # Parse command line arguments
     host = 'localhost'
@@ -83,8 +76,30 @@ def main():
     if len(sys.argv) > 2:
         host = sys.argv[2]
     
-    # Start the server
-    start_server(host, port)
+    if php_available:
+        # Start PHP server
+        start_server(host, port)
+    else:
+        # Fallback: start Python static server
+        script_dir = Path(__file__).parent.resolve()
+        os.chdir(str(script_dir))
+
+        print(f"\n{'='*60}")
+        print("Calvin & Hobbes Development Server (Python fallback)")
+        print(f"{'='*60}")
+        print(f"Server starting at: http://{host}:{port}")
+        print(f"Document root: {script_dir}")
+        print("Note: PHP is not installed; serving static files only.")
+        print("The calendar and random comic will work; PHP-only features (search) may not.")
+        print(f"{'='*60}\n")
+
+        with TCPServer((host, port), SimpleHTTPRequestHandler) as httpd:
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("\n\nShutting down server...")
+                httpd.server_close()
+                print("Server stopped.")
 
 if __name__ == '__main__':
     main()
